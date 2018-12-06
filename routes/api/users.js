@@ -7,6 +7,12 @@ const jwt = require('jsonwebtoken');
 const key = require('../../config/keys').secretOrKey;
 const passport = require('passport');
 
+// Load input validation
+const validateRegiserInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
+
+const UsersController = require('../../controllers/UsersController');
+
 // Load user model
 const User = require('../../models/User');
 
@@ -22,13 +28,20 @@ router.get('/test', (req, res) => {
 // @desc    Register user
 // @access  Public
 router.post('/register', (req, res) => {
+    const { errors, isValid } = validateRegiserInput(req.body);
     const {name,email,password} = req.body;
+
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
     User.findOne({
         email: email
     })
     .then(user => {
         if(user){
-            return res.status(400).json({email: 'Email already exists'})
+            errors.email = 'Email already exists'
+            return res.status(400).json(errors)
         }
         let avatar = gravatar.url(email, {
             s: 200,
@@ -59,20 +72,27 @@ router.post('/register', (req, res) => {
 // @access  Public
 router.post('/login', (req, res) => {
     const {email, password} = req.body;
-    
+
+    const { errors, isValid } = validateLoginInput(req.body);
+
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
     // Find user
     User.findOne({email})
         .then((user) => {
             // Check for user
             if(!user){
-                return res.status(404).json({email: 'User email not found'})
+                errors.email = 'User email not found'
+                return res.status(404).json(errors)
             }
 
             // Check Password
             bcrypt.compare(password, user.password)
                 .then(isMatch => {
                     if(!isMatch){
-                        return res.status(400).json({password: 'Password incorect'})
+                        errors.password = 'Password incorect'
+                        return res.status(400).json(errors)
                     }
                     // User Matched
 
@@ -98,8 +118,6 @@ router.post('/login', (req, res) => {
 // @route   GET api/users/current
 // @desc    Return current user
 // @access  Private
-router.get('/current', passport.authenticate('jwt', {session:false}), (req, res) => {
-    res.json(req.user);
-});
+router.get('/current', passport.authenticate('jwt', {session:false}), (req, res) => UsersController.current(req, res));
 
 module.exports = router;
