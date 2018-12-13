@@ -13,10 +13,10 @@ module.exports = function validateProfileInput(data){
         errors.handle = 'Handle needs to be between 2 and 40 characters'
     }
     if(Validator.isEmpty(status)){
-        errors.status = 'Profile handle is required'
+        errors.status = 'Profile status is required'
     }
     if(Validator.isEmpty(skills)){
-        errors.skills = 'Profile handle is required'
+        errors.skills = 'Profile skills is required'
     }
     if(!isEmpty(data.website)){
         if(!Validator.isURL(data.website)){
