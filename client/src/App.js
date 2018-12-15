@@ -22,6 +22,8 @@ import EditProfile from './components/edit-profile/EditProfile'
 import AddExperience from './components/add-credentials/AddExperience'
 import AddEducation from './components/add-credentials/AddEducation'
 import Profiles from './components/profiles/Profiles'
+import Profile from './components/profile/Profile'
+import NotFound from './components/not-found/NotFound'
 // Check for token
 if(localStorage.jwtToken){
   // Set the authToken
@@ -55,6 +57,7 @@ class App extends Component {
               <Route exact path="/developers" component={Profiles}></Route>
               <Route exact path="/login" component={Login}></Route>
               <Route exact path="/register" component={Register}></Route>
+              <Route exact path="/profile/:handle" component={Profile}></Route>
               <Switch>
                 <ProtectedRoute exact path="/dashboard" component={Dashboard}></ProtectedRoute>
               </Switch>
@@ -70,6 +73,7 @@ class App extends Component {
               <Switch>
                 <ProtectedRoute exact path="/add-education" component={AddEducation}></ProtectedRoute>
               </Switch>
+              <Route exact path="/not-found" component={NotFound}></Route>
             <Footer/>
           </div>
         </Router>
