@@ -98,12 +98,19 @@ router.post('/like/:post_id', passport.authenticate('jwt', {session:false}), (re
         .then(profile => {
             Post.findById(req.params.post_id)
                 .then(post => {
-                    if(post.likes.filter(like => like.user.toString == req.user.id).length > 0){
-                        errors.likes = 'Post already liked';
-                        return res.status(404).json(errors)
-                    }
-                    post.likes.unshift({ user: req.user.id });
-                    post.save().then(post => res.json(post))
+                    if (
+                        post.likes.filter(like => like.user.toString() === req.user.id)
+                          .length > 0
+                      ) {
+                        return res
+                          .status(400)
+                          .json({ alreadyliked: 'User already liked this post' });
+                      }
+            
+                      // Add user id to likes array
+                      post.likes.unshift({ user: req.user.id });
+            
+                      post.save().then(post => res.json(post));
                 })
                 .catch(err => {
                     errors.post = 'Post not found';
@@ -120,14 +127,25 @@ router.post('/unlike/:post_id', passport.authenticate('jwt', {session:false}), (
         .then(profile => {
             Post.findById(req.params.post_id)
                 .then(post => {
-                    if(post.likes.filter(like => like.user.toString() === req.user.id).length > 0){
-                        errors.likes = 'Post not liked';
-                        return res.status(404).json(errors)
-                    }
-                    
-                    const removeIndex = post.likes.map(item => item.user.toString()).indexOf(req.user.id)
-                    post.likes.splice(removeIndex, 1)
-                    post.save().then(post => res.json(post))
+                    if (
+                        post.likes.filter(like => like.user.toString() === req.user.id)
+                          .length === 0
+                      ) {
+                        return res
+                          .status(400)
+                          .json({ notliked: 'You have not yet liked this post' });
+                      }
+            
+                      // Get remove index
+                      const removeIndex = post.likes
+                        .map(item => item.user.toString())
+                        .indexOf(req.user.id);
+            
+                      // Splice out of array
+                      post.likes.splice(removeIndex, 1);
+            
+                      // Save
+                      post.save().then(post => res.json(post));
                 })
                 .catch(err => {
                     errors.post = 'Post not found';
@@ -149,7 +167,7 @@ router.post('/comment/:post_id', passport.authenticate('jwt', {session:false}), 
             }
             const {name, avatar, id} = req.user
             const {text} = req.body;
-            const newComment= {text, name, avatar, id};
+            const newComment= {text, name, avatar, user:id};
             post.comments.unshift(newComment)
             post.save().then(post => res.json(post))
         })

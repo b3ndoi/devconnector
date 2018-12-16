@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
  class ProfileGithub extends Component {
    constructor(props){
@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
    }
    componentDidMount(){
      const {username} = this.props
-     const {count, sort,clinetId,clientSecret,repos} = this.state
+     const {count, sort,clinetId,clientSecret} = this.state
 
     fetch(`https://api.github.com/users/${username}/repos?per_page=${count}&sort=${sort}&client_id=${clinetId}&client_secret=${clientSecret}`)
       .then(res => res.json())
